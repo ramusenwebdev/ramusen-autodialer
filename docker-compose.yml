@@ -1,0 +1,39 @@
+services:
+  app:
+    build: .
+    command: gunicorn -w 1 -k eventlet -b 0.0.0.0:8100 app:app
+    container_name: autodialer-app
+    volumes:
+      - ./dataset:/app/datasets
+      - ./descriptors:/app/descriptors
+    environment:
+      - FLASK_ENV=production
+    expose:
+      - "8100"
+    networks:
+      - autodialer-app-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:latest
+    container_name: autodialer-app-nginx
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - autodialer-app-network 
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+networks:
+  autodialer-app-network:
+    driver: bridge
