@@ -185,7 +185,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                         session.query(User)
                         .join(RoleUser, RoleUser.model_id == User.id)  # Explicit join condition for RoleUser
                         .join(Role, Role.id == RoleUser.role_id)     # Explicit join condition for Role
-                        .filter(Role.name.in_(['Superuser', 'Developer']))  # Filter berdasarkan Role
+                        .filter(Role.name.in_(['Superadmin', 'Developer']))  # Filter berdasarkan Role
                         .all()
                     )
 
@@ -245,7 +245,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                             session.query(User)
                             .join(RoleUser, RoleUser.model_id == User.id)  # Explicit join condition for RoleUser
                             .join(Role, Role.id == RoleUser.role_id)     # Explicit join condition for Role
-                            .filter(Role.name.in_(['Superuser', 'Developer']))  # Filter berdasarkan Role
+                            .filter(Role.name.in_(['Superadmin', 'Developer']))  # Filter berdasarkan Role
                             .all()
                         )
 
@@ -310,7 +310,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                         session.query(User)
                         .join(RoleUser, RoleUser.model_id == User.id)  # Explicit join condition for RoleUser
                         .join(Role, Role.id == RoleUser.role_id)     # Explicit join condition for Role
-                        .filter(Role.name.in_(['Superuser', 'Developer']))  # Filter berdasarkan Role
+                        .filter(Role.name.in_(['Superadmin', 'Developer']))  # Filter berdasarkan Role
                         .all()
                     )
 
@@ -405,7 +405,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                             session.query(User)
                             .join(RoleUser, RoleUser.model_id == User.id)  # Explicit join condition for RoleUser
                             .join(Role, Role.id == RoleUser.role_id)     # Explicit join condition for Role
-                            .filter(Role.name.in_(['Superuser', 'Developer']))  # Filter berdasarkan Role
+                            .filter(Role.name.in_(['Superadmin', 'Developer']))  # Filter berdasarkan Role
                             .all()
                         )   
                         if active_users:  # Jika ada pengguna aktif
