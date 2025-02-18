@@ -40,8 +40,8 @@ def reschedule_campaign_autodialer(data):
         autodialer_logger.error(f"End date {end_date} for campaign {campaign_id} must be after start date {start_date}.")
         return
 
-    start_job_id = f"campaign_start_{campaign_id}"
-    end_job_id = f"campaign_end_{campaign_id}"
+    start_job_id = f"campaign_start_autodialer_{campaign_id}"
+    end_job_id = f"campaign_end_autodialer_{campaign_id}"
 
       # Remove existing jobs if they exist
     try:
@@ -97,8 +97,8 @@ def reschedule_campaign_ranablast(data):
         ranablast_logger.error(f"End date {end_date} for campaign {campaign_id} must be after start date {start_date}.")
         return
 
-    start_job_id = f"campaign_start_{campaign_id}"
-    end_job_id = f"campaign_end_{campaign_id}"
+    start_job_id = f"campaign_start_ranablast_{campaign_id}"
+    end_job_id = f"campaign_end_ranablast_{campaign_id}"
 
       # Remove existing jobs if they exist
     try:

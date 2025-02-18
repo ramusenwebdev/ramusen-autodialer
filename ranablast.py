@@ -17,15 +17,15 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from sqlalchemy.orm import joinedload
 
-# ASTERISK_HOST = "172.16.203.199"
-# ASTERISK_PORT = 5038
-# ASTERISK_USERNAME = "ranatelapi"
-# ASTERISK_PASSWORD = "343aa1aefe4908885015295abd578b91"
-
-ASTERISK_HOST = "srv469501.hstgr.cloud"
+ASTERISK_HOST = "172.16.203.199"
 ASTERISK_PORT = 5038
 ASTERISK_USERNAME = "ranatelapi"
 ASTERISK_PASSWORD = "343aa1aefe4908885015295abd578b91"
+
+# ASTERISK_HOST = "srv469501.hstgr.cloud"
+# ASTERISK_PORT = 5038
+# ASTERISK_USERNAME = "ranatelapi"
+# ASTERISK_PASSWORD = "343aa1aefe4908885015295abd578b91"
 
 # Fungsi untuk memulai kampanye autodialer
 def start_ranablast_campaign(campaign_id):
@@ -96,7 +96,7 @@ async def dial_number(manager, phone_number, campaign_id, provider, no_provider)
         action = {
             "Action": "Originate",
             "Channel": f"PJSIP/{full_number}@{provider}",
-            "Context": "ivr-56",
+            "Context": "ranablast",
             "Exten": "s",
             "Priority": 1,
             "Async": "True",
@@ -233,7 +233,6 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                     logger.info(f"Unknown DTMF digit {dtmf_digit} pressed.")
             except Exception as e:
                 logger.error(f"Error in handle_dtmf: {e}")
-
     async def handle_varset(manager, event):
         if event.get('Channel', '').startswith(f'PJSIP/{campaign.provider}'):
             logger.info(f"VarSet event: {event}")
@@ -253,7 +252,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                     .first()
                 )
 
-                if variable_name == "RECOGNIZED_TEXT":
+                if variable_name == "UCAPAN" or variable_name == "RECOGNIZED_TEXT":
                     positive_responses = ["mau", "iya", "yes", "tentu", "minat", "iyo", "berminat", "boleh", "baik"]
                     if variable_value.lower() in positive_responses:
                         contact.contact_status = "Completed"
@@ -286,7 +285,6 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                             logger.info("No active user found. Data not sent.")
             except Exception as e:
                 logger.error(f"Error in handle_varset: {e}")
-
     async def handle_hangup(manager, event):
         if event.get('Channel', '').startswith(f'PJSIP/{campaign.provider}'):
             try:
@@ -350,7 +348,6 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
             except Exception as e:
                 logger.error(f"Error in handle_hangup: {e}")
                 session.rollback()
-
     async def handle_cdr(manager, event):
         if event.get('Channel', '').startswith(f'PJSIP/{campaign.provider}'):
             try:
@@ -413,7 +410,6 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
             except Exception as e:
                 logger.error(f"Error in handle_cdr: {e}")
                 session.rollback()
-
     async def handle_originate_response(manager, event):
         if event.get('Channel', '').startswith(f'PJSIP/{campaign.provider}'):
             try:
@@ -472,12 +468,26 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
             except Exception as e:
                 logger.error(f"Error in handle_originate_response: {e}")
                 session.rollback()
+    async def handle_channel_talking_start(manager,event):
+        logger.info(f"ChannelTalkingStart Received for {event['Channel']} : {event}")
+    async def handle_channel_talking_stop(manager,event):
+        logger.info(f"ChannelTalkingStop Received for {event['Channel']} : {event}")
+    async def handle_new_exten(manager,event):
+        logger.info(f"GotoIf Received for {event['Channel']} : {event}")
+        print(f"GotoIf Received for {event['Channel']} : {event}")
+    async def handle_new_speech(manager,event):
+        logger.info(f"SpeechRecognition Received for {event['Channel']} : {event}")
+        print(f"SpeechRecognition Received for {event['Channel']} : {event}")
 
     manager.register_event('DTMFBegin', handle_dtmf)
     manager.register_event('VarSet', handle_varset)
     manager.register_event('Hangup', handle_hangup)
     manager.register_event('Cdr', handle_cdr)
     manager.register_event('NewConnectedLine', handle_originate_response)
+    manager.register_event('ChannelTalkingStart', handle_channel_talking_start)
+    manager.register_event('ChannelTalkingStop', handle_channel_talking_stop)
+    manager.register_event('Newexten', handle_new_exten)
+    manager.register_event('SpeechRecognition', handle_new_speech)
 
     try:
         contacts = session.query(RanablastContact).filter(RanablastContact.campaign_id==campaign_id, RanablastContact.contact_status=="Active").all()
