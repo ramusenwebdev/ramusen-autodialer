@@ -1,7 +1,7 @@
 import socketio
 
 # SOCKET_URL = 'wss://www.ramusen.io/socket.io/'
-SOCKET_URL = 'ws://localhost:5000/socket.io/'
+SOCKET_URL = 'ws://172.16.203.24:5000//socket.io/'
 
 sio = socketio.Client()
 
