@@ -228,6 +228,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                 elif dtmf_digit == '2':
                     logger.info(f"User pressed '2' for option 2.")
                     print("DAyumm")
+                    await send_mail_manager(contact.CustomerCall6.name, campaign.name)
                     # Do something else, e.g., play another message
                 else:
                     logger.info(f"Unknown DTMF digit {dtmf_digit} pressed.")
