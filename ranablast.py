@@ -198,7 +198,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                     contact.contact_status = "Completed"
                     contact.call_result = "ANSWERED"
 
-                    await send_mail_manager(contact.CustomerCall6.name, campaign.name)
+                    await send_mail_manager(campaign.name, contact.CustomerCall6.name, phone_number)
 
                     response_data = {
                         "nama": contact.CustomerCall6.name,
@@ -228,7 +228,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                 elif dtmf_digit == '2':
                     logger.info(f"User pressed '2' for option 2.")
                     print("DAyumm")
-                    await send_mail_manager(contact.CustomerCall6.name, campaign.name)
+                    await send_mail_manager(campaign.name, contact.CustomerCall6.name, phone_number)
                     # Do something else, e.g., play another message
                 else:
                     logger.info(f"Unknown DTMF digit {dtmf_digit} pressed.")
@@ -542,7 +542,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
 
 
 
-async def send_mail_manager(name, phone_number):
+async def send_mail_manager(campaign_name, customer_name, phone_number):
     try:
         # Configurasi SMTP
         smtp_host = "ramusen.com"
@@ -553,7 +553,7 @@ async def send_mail_manager(name, phone_number):
         # Konfigurasi email
         mail_from = f"Pemberitahuan Kampanye <{smtp_user}>"
         mail_to = "giramnk@gmail.com"
-        subject = f"Pemberitahuan Minat Kampanye {name}"
+        subject = f"Pemberitahuan Minat Kampanye {campaign_name}"
         html_content = f"""
         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd;">
             <h2 style="color: #2c3e50;">Peringatan Minat Kampanye - Ranablast</h2>
@@ -561,6 +561,7 @@ async def send_mail_manager(name, phone_number):
             <p>Ada kontak yang menunjukkan minat pada kampanye Anda.</p>
             <div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
                 <h4>Rincian Kontak:</h4>
+                <p><strong>Nama:</strong> {customer_name}</p>
                 <p><strong>Telepon:</strong> <a href="tel:{phone_number}">{phone_number}</a></p>
             </div>
             <p>Silakan hubungi mereka secepatnya.</p>
