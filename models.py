@@ -131,8 +131,8 @@ class CustomerCall(Base):
     dob = Column(String(100))
     hp = Column(String(100))
     company_name = Column(String(300))
-    credit_card1 = Column(Integer, ForeignKey("r_m_creditcard.id"))
-    credit_card2 = Column(Integer, ForeignKey("r_m_creditcard.id"))
+    credit_card1 = Column(Integer)
+    credit_card2 = Column(Integer)
     limit_cc = Column(Integer)
     status = Column(String(255))
 
