@@ -1,5 +1,6 @@
 import asyncio
 import socketio
+import aiohttp
 from datetime import datetime
 from panoramisk import Manager
 from asterisk.ami import AMIClient, SimpleAction
