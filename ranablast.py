@@ -170,7 +170,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
     # Handler for when a key is pressed (DTMF tones)
     async def handle_dtmf(manager, event):
         if event.get('Channel', '').startswith(f'PJSIP/{campaign.provider}'):
-            logger.info(f"DTMF event: {event}")
+            # logger.info(f"DTMF event: {event}")
             try:
                 phone_number = normalize_phone_number(event.get('CallerIDNum'))
                 unique_id = event.get('Uniqueid')
@@ -237,7 +237,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                 logger.error(f"Error in handle_dtmf: {e}")
     async def handle_varset(manager, event):
         if event.get('Channel', '').startswith(f'PJSIP/{campaign.provider}'):
-            logger.info(f"VarSet event: {event}")
+            # logger.info(f"VarSet event: {event}")
             try:
                 phone_number = normalize_phone_number(event.get('CallerIDNum'))
                 unique_id = event.get('Uniqueid')
