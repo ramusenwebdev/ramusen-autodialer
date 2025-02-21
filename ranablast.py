@@ -618,7 +618,7 @@ async def send_message(campaign_name, customer_name, phone_number):
     🌐 Ranablast - Menyambungkan Anda dengan Pelanggan
     """
 
-    payload = {"number": "6281293062114", "message": message}
+    payload = {"number": "6281293955090", "message": message}
 
     try:
         async with aiohttp.ClientSession() as session:
