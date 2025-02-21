@@ -623,6 +623,6 @@ async def send_message(campaign_name, customer_name, phone_number):
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=headers, json=payload) as response:
                 data = await response.json()
-                print(data.get("message", "Pesan terkirim."))
+                logger.info(data.get("message", "Pesan terkirim."))
     except Exception as error:
-        print("Error mengirim pesan:", error)
+        logger.error("Error mengirim pesan:", error)

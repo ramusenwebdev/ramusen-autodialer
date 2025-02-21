@@ -37,9 +37,9 @@ def send_message(phone):
     try:
         response = requests.post(url, headers=headers, data=json.dumps(payload))
         data = response.json()
-        print(data.get("message", "Pesan terkirim."))
+        logger.info(data.get("message", "Pesan terkirim."))
     except Exception as error:
-        print("Error mengirim pesan:", error)
+        logger.info("Error mengirim pesan:", error)
 
 # Contoh pemanggilan fungsi
 send_message("6281293955090")
