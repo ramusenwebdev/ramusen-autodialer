@@ -259,7 +259,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                     if variable_value.lower() in positive_responses:
                         contact.contact_status = "Completed"
                         contact.call_result = "ANSWERED"
-                        await send_mail_manager(contact.CustomerCall6.name, campaign.name)
+                        await send_message(campaign.name, contact.CustomerCall6.name, phone_number)
 
                         response_data = {
                             "nama": contact.CustomerCall6.name,
@@ -486,10 +486,10 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
     manager.register_event('Hangup', handle_hangup)
     manager.register_event('Cdr', handle_cdr)
     manager.register_event('NewConnectedLine', handle_originate_response)
-    manager.register_event('ChannelTalkingStart', handle_channel_talking_start)
-    manager.register_event('ChannelTalkingStop', handle_channel_talking_stop)
-    manager.register_event('Newexten', handle_new_exten)
-    manager.register_event('SpeechRecognition', handle_new_speech)
+    # manager.register_event('ChannelTalkingStart', handle_channel_talking_start)
+    # manager.register_event('ChannelTalkingStop', handle_channel_talking_stop)
+    # manager.register_event('Newexten', handle_new_exten)
+    # manager.register_event('SpeechRecognition', handle_new_speech)
 
     try:
         contacts = session.query(RanablastContact).filter(RanablastContact.campaign_id==campaign_id, RanablastContact.contact_status=="Active").all()
