@@ -198,7 +198,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                     contact.contact_status = "Completed"
                     contact.call_result = "ANSWERED"
 
-                    await send_mail_manager(campaign.name, contact.CustomerCall6.name, phone_number)
+                    await send_message(campaign.name, contact.CustomerCall6.name, phone_number)
 
                     response_data = {
                         "nama": contact.CustomerCall6.name,
@@ -228,7 +228,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                 elif dtmf_digit == '2':
                     logger.info(f"User pressed '2' for option 2.")
                     print("DAyumm")
-                    await send_mail_manager(campaign.name, contact.CustomerCall6.name, phone_number)
+                    await send_message(campaign.name, contact.CustomerCall6.name, phone_number)
                     # Do something else, e.g., play another message
                 else:
                     logger.info(f"Unknown DTMF digit {dtmf_digit} pressed.")
@@ -581,12 +581,48 @@ async def send_mail_manager(campaign_name, customer_name, phone_number):
         msg["Subject"] = subject
         msg.attach(MIMEText(html_content, "html"))
 
-        try:
-            server = smtplib.SMTP_SSL(smtp_host, smtp_port)
-            server.login(smtp_user, smtp_pass)
-            server.sendmail(mail_from, mail_to, msg.as_string())
-            logger.info("Email notifikasi berhasil dikirim.")
-        finally:
-            server.quit()
+          # Kirim email menggunakan SMTP
+        server = smtplib.SMTP_SSL(smtp_host, smtp_port)
+        server.login(smtp_user, smtp_pass)
+        server.sendmail(mail_from, mail_to, msg.as_string())
+        server.quit()
+        
     except Exception as e:
         logger.error(f"Kesalahan saat mengirim email notifikasi: {e}")
+
+
+async def send_message(campaign_name, customer_name, phone_number):
+    url = "http://172.16.203.23:3000/send-message"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer $2b$10$PERWTF47Lict.8rJSOhbT.M4UJPjE.f5epdPH8AKxdsEknMXl2g2m"
+    }
+    
+    message = f"""
+    *Peringatan Minat Kampanye - {campaign_name}*
+
+    Kepada Manajer Kampanye,
+
+    Ada kontak yang menunjukkan minat pada kampanye Anda.
+
+    📌 *Rincian Kontak:*
+    - *Nama:* {customer_name}
+    - *Telepon:* {phone_number}
+
+    Silakan hubungi mereka secepatnya.
+
+    Salam,
+    _📝 Sistem Kampanye Ranablast_
+
+    🌐 Ranablast - Menyambungkan Anda dengan Pelanggan
+    """
+
+    payload = {"number": "6281293062114", "message": message}
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=payload) as response:
+                data = await response.json()
+                print(data.get("message", "Pesan terkirim."))
+    except Exception as error:
+        print("Error mengirim pesan:", error)
