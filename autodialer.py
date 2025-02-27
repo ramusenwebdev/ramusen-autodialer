@@ -183,7 +183,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                     # Create a new task for this interaction
                     flag_contact = AutoDialerContactFlag(
                         campaign_id=campaign.id,
-                        customer_id=customer.id,
+                        customer_id=contact.customer_id,
                         created_at=now,
                         updated_at=now,
                     )
