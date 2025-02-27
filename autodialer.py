@@ -355,9 +355,9 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                             CustomerCall.hp.like(f'%62{phone_number}')
                         )
                     ).first()
-                    print(customer.id)
-                    print(campaign_id)
+
                     if customer:
+                        customer.status = 'completed'
                         contact = session.query(AutoDialerContact).filter(
                             AutoDialerContact.customer_id == customer.id,
                             AutoDialerContact.campaign_id == campaign_id
@@ -367,7 +367,6 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                             contact.tele_id = agent.id  # Associate the agent
                         else:
                             logger.info(f"Contact not found for customer {customer.name} and campaign {campaign_id}")
-                        
                         # Send customer data to the agent
                         data_customer = {
                             "name": customer.name,
@@ -382,7 +381,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                             user_id=agent.id,
                             customer_id=customer.id,
                             status_call_id=status_call.id,
-                            status_application_id=status_application.id,
+                            status_application_id=3,
                             loan=0,
                             notes="",
                             batch_processed_at=now,
