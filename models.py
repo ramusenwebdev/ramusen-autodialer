@@ -75,6 +75,18 @@ class AutoDialerContact(Base):
         self.number_of_attempts = number_of_attempts
         self.campaign_id = campaign_id
 
+class AutoDialerContactFlag(Base):
+    __tablename__ = "autodialer_contact_flags"
+    id = Column(Integer, primary_key=True)
+    campaign_id = Column(Integer, ForeignKey("autodialers.id"))
+    customer_id = Column(Integer, ForeignKey("customers.id"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+    def __init__(self, campaign_id, customer_id, created_at, updated_at):
+        self.campaign_id = campaign_id
+        self.customer_id = customer_id
+        self.created_at = created_at
+        self.updated_at = updated_at
 
 class RanablastCampaign(Base):
     __tablename__ = "ranablasts"

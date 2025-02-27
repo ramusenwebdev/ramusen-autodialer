@@ -4,7 +4,7 @@ from datetime import datetime
 from panoramisk import Manager
 from asterisk.ami import AMIClient, SimpleAction
 from collections import defaultdict
-from models import AutoDialerCampaign, CustomerCall, AutoDialerContact, User, TaskTele, RoleUser, StatusCall, Role, StatusApplication
+from models import AutoDialerCampaign, CustomerCall, AutoDialerContact, AutoDialerContactFlag, User, TaskTele, RoleUser, StatusCall, Role, StatusApplication
 from config import Session
 from loggers import autodialer_logger as logger
 from sqlalchemy import or_
@@ -149,6 +149,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
             try:
                 phone_number = normalize_phone_number(event.get('CallerIDNum'))
                 unique_id = event.get('Uniqueid')
+                now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
                 if not phone_number:
                     campaign_logger.warning("OriginateResponse missing CallerIDNum")
@@ -170,7 +171,6 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                     contact.contact_status = "Contacted"
                     contact.number_of_attempts += 1
                     contact.last_contacted = datetime.now()
-                    session.commit()
 
                     response_data = {
                         "nama": contact.CustomerCall5.name,
@@ -179,6 +179,18 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                         "lastcall": datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
                         "campaign_id": campaign_id
                     }
+
+                    # Create a new task for this interaction
+                    flag_contact = AutoDialerContactFlag(
+                        campaign_id=campaign.id,
+                        customer_id=customer.id,
+                        created_at=now,
+                        updated_at=now,
+                    )
+                    
+                    session.add(flag_contact)
+
+                    session.commit()
 
                     # Ambil user aktif (status_active = 1)
                     active_users = (
@@ -469,7 +481,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                     logger.error(f"Error while processing {number}: {e}")
                 finally:
                     # Delay setelah setiap panggilan (jika diperlukan)
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(20)
 
         # Buat dan jalankan tugas-tugas secara paralel
         tasks = [asyncio.create_task(process_call(number)) for number in contacts]
