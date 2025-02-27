@@ -21,7 +21,7 @@ ASTERISK_HOST = "srv469501.hstgr.cloud"
 ASTERISK_PORT = 5038
 ASTERISK_USERNAME = "ranatelapi"
 ASTERISK_PASSWORD = "343aa1aefe4908885015295abd578b91"
-# RECORDINGS_FOLDER = "/var/spool/asterisk/monitor/"
+RECORDINGS_FOLDER = "/var/spool/asterisk/monitor/"
 
 # Fungsi untuk memulai kampanye autodialer
 def start_autodialer_campaign(campaign_id):
@@ -381,7 +381,6 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                         new_task = TaskTele(
                             user_id=agent.id,
                             customer_id=customer.id,
-                            sheet_id=customer.sheet_id,
                             status_call_id=status_call.id,
                             status_application_id=status_application.id,
                             loan=0,

@@ -185,7 +185,6 @@ class TaskTele(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     customer_id = Column(Integer, ForeignKey("customers.id"))
-    sheet_id = Column(Integer, ForeignKey("customer_sheets.id"))
     status_call_id = Column(Integer, ForeignKey("status_calls.id"))
     status_application_id = Column(Integer, ForeignKey("status_applications.id"))
     batch_processed_at = Column(DateTime)
@@ -194,10 +193,9 @@ class TaskTele(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
-    def __init__(self, user_id, customer_id, sheet_id, status_call_id, status_application_id, batch_processed_at, loan, notes, created_at, updated_at):
+    def __init__(self, user_id, customer_id, status_call_id, status_application_id, batch_processed_at, loan, notes, created_at, updated_at):
         self.user_id = user_id
         self.customer_id = customer_id
-        self.sheet_id = sheet_id
         self.status_call_id = status_call_id
         self.status_application_id = status_application_id
         self.batch_processed_at = batch_processed_at
