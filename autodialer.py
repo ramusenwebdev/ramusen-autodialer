@@ -481,7 +481,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
                     logger.error(f"Error while processing {number}: {e}")
                 finally:
                     # Delay setelah setiap panggilan (jika diperlukan)
-                    await asyncio.sleep(20)
+                    await asyncio.sleep(10)
 
         # Buat dan jalankan tugas-tugas secara paralel
         tasks = [asyncio.create_task(process_call(number)) for number in contacts]
