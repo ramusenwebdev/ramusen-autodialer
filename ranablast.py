@@ -18,7 +18,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from sqlalchemy.orm import joinedload
 
-ASTERISK_HOST = "172.16.203.199"
+# ASTERISK_HOST = "172.16.203.199"
+ASTERISK_HOST = "172.16.203.166"
 ASTERISK_PORT = 5038
 ASTERISK_USERNAME = "ranatelapi"
 ASTERISK_PASSWORD = "343aa1aefe4908885015295abd578b91"
