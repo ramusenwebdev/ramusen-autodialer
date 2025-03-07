@@ -471,6 +471,17 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
     
         tasks = []
 
+        # Fungsi untuk memeriksa status campaign secara periodik
+        async def monitor_campaign(campaign_id, tasks):
+            while True:
+                await asyncio.sleep(5)  # Interval pengecekan
+                campaign = session.query(AutoDialerCampaign).filter(AutoDialerCampaign.id == campaign_id).first()
+                if not campaign or campaign.status != "Active":
+                    logger.info(f"Campaign {campaign_id} tidak aktif atau tidak ada. Membatalkan semua task...")
+                    for t in tasks:
+                        t.cancel()
+                    break
+
         async def process_call(number):
             async with semaphore:  # Batasi jumlah tugas yang berjalan bersamaan
                 try:
@@ -487,39 +498,23 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
 
         # Buat dan jalankan tugas-tugas secara paralel
         tasks = [asyncio.create_task(process_call(number)) for number in contacts]
-        # try:
-        #     # Tunggu semua task selesai, tetapi bisa dihentikan jika kampanye berubah status
-        #     while True:
-        #         if not campaign or campaign.status != "Active":
-        #             logger.info(f"Campaign {campaign_id} is not active or does not exist. Cancelling tasks...")
-                    
-        #             # Membatalkan semua task yang masih berjalan
-        #             for task in tasks:
-        #                 task.cancel()
-                    
-        #             # Tunggu semua task selesai setelah dibatalkan
-        #             await asyncio.gather(*tasks, return_exceptions=True)
-        #             return
-
-        #         # Hitung jumlah task yang masih berjalan
-        #         running_tasks = sum(1 for t in tasks if not t.done())
-        #         logger.info(f'{running_tasks}/{max_concurrent_calls} calls in progress for campaign {campaign_id}.')
-        #         # Tunggu sebentar sebelum memeriksa kembali status kampanye
-        #         await asyncio.sleep(1)
-
-        #     # Tunggu semua task selesai sebelum melanjutkan
-        #     await asyncio.gather(*tasks)
-        # except asyncio.CancelledError:
-        #     logger.info(f"Campaign {campaign_id} tasks were cancelled.")
+        monitor_task = asyncio.create_task(monitor_campaign(campaign_id, tasks))
 
         for task in tasks:
-            # Hitung jumlah tugas yang masih berjalan
-            running_tasks = len([t for t in tasks if not t.done()])
-            logger.info(f'{running_tasks}/{max_concurrent_calls} calls in progress for campaign {campaign_id}.')
-            await task
+            # # Hitung jumlah tugas yang masih berjalan
+            # running_tasks = len([t for t in tasks if not t.done()])
+            # logger.info(f'{running_tasks}/{max_concurrent_calls} calls in progress for campaign {campaign_id}.')
+            # await task
+            try:
+                await task
+            except asyncio.CancelledError:
+                logger.info("Task dibatalkan karena campaign tidak aktif.")
+            except Exception as e:
+                logger.error(f"Error saat menunggu task: {e}")
     except Exception as e:
         logger.error(f"Error managing autodialer for campaign {campaign_id}: {e}")
     finally:
         await asyncio.sleep(20)
         manager.close()
+        monitor_task.cancel()
         logger.info("Manager connection closed.")
