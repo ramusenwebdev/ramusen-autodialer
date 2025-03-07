@@ -558,6 +558,7 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
     finally:
         await asyncio.sleep(20)
         manager.close()
+        monitor_task.cancel()
         logger.info("Manager connection closed.")
 
 
