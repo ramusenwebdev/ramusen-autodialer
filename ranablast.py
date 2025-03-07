@@ -513,6 +513,16 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
     
         tasks = []
 
+        async def monitor_campaign(campaign_id, tasks):
+            while True:
+                await asyncio.sleep(5)  # Interval pengecekan
+                campaign = session.query(RanablastCampaign).filter(RanablastCampaign.id == campaign_id).first()
+                if not campaign or campaign.status != "Active":
+                    logger.info(f"Campaign {campaign_id} tidak aktif atau tidak ada. Membatalkan semua task...")
+                    for t in tasks:
+                        t.cancel()
+                    break
+
         async def process_call(number):
             async with semaphore:  # Batasi jumlah tugas yang berjalan bersamaan
                 try:
@@ -525,16 +535,24 @@ async def manage_ranablast(campaign_id, max_concurrent_calls=15):
                     logger.error(f"Error while processing {number}: {e}")
                 finally:
                     # Delay setelah setiap panggilan (jika diperlukan)
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(10)
 
         # Buat dan jalankan tugas-tugas secara paralel
         tasks = [asyncio.create_task(process_call(number)) for number in contacts]
+        monitor_task = asyncio.create_task(monitor_campaign(campaign_id, tasks))
 
         for task in tasks:
             # Hitung jumlah tugas yang masih berjalan
-            running_tasks = len([t for t in tasks if not t.done()])
-            logger.info(f'{running_tasks}/{max_concurrent_calls} calls in progress for campaign {campaign_id}.')
-            await task
+            # running_tasks = len([t for t in tasks if not t.done()])
+            # logger.info(f'{running_tasks}/{max_concurrent_calls} calls in progress for campaign {campaign_id}.')
+            # await task
+            try:
+                await task
+                logger.info(f'{running_tasks}/{max_concurrent_calls} calls in progress for Ranablast campaign {campaign_id}.')
+            except asyncio.CancelledError:
+                logger.info("Task dibatalkan karena campaign tidak aktif.")
+            except Exception as e:
+                logger.error(f"Error saat menunggu task: {e}")
     except Exception as e:
         logger.error(f"Error managing autodialer for campaign {campaign_id}: {e}")
     finally:

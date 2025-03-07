@@ -507,6 +507,7 @@ async def manage_autodialer(campaign_id, max_concurrent_calls=15):
             # await task
             try:
                 await task
+                logger.info(f'{running_tasks}/{max_concurrent_calls} calls in progress for Autodialer campaign {campaign_id}.')
             except asyncio.CancelledError:
                 logger.info("Task dibatalkan karena campaign tidak aktif.")
             except Exception as e:
